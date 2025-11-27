@@ -1,31 +1,51 @@
-#include <iostream>
-#include <proj.h>
+// #include <iostream>
+// #include <proj.h>
+// #include "terraindata.hpp"
 
-using namespace std;
+// using namespace std;
+
+// int main()
+// {
+//     const std::string filepath = "rade.txt";
+
+//     try {
+//         TerrainData terrain;
+//         terrain.load_data_from_file(filepath);
+
+//         std::cout << "Nombre de points : " << terrain.size() << "\n";
+//         std::cout << "Latitude  : [" << terrain.min_lat() << ", " << terrain.max_lat() << "]\n";
+//         std::cout << "Longitude : [" << terrain.min_lon() << ", " << terrain.max_lon() << "]\n";
+//         std::cout << "Altitude  : [" << terrain.min_alt() << ", " << terrain.max_alt() << "]\n";
+//     }
+//     catch (const std::exception& e) {
+//         std::cerr << "Erreur : " << e.what() << std::endl;
+//         return EXIT_FAILURE;
+//     }
+
+//     return EXIT_SUCCESS;
+// }
+
+#include <iostream>
+#include "terraindata.hpp"
+#include "projector.hpp"
+#include "terrainprojected.hpp"
+#include "delaunator.hpp"
 
 int main()
 {
-  // Initialisation des référentiels de coordonnées :
-  PJ* P = proj_create_crs_to_crs(
-    PJ_DEFAULT_CTX,
-    "+proj=longlat +datum=WGS84",
-    "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs",
-    NULL);
-  // ^ peut prendre du temps, à ne faire qu'une seule fois
+    TerrainData terrain;
+    const std::string filepath = "rade.txt";
 
-  // Deux coordonnées à exprimer dans des référentiels différents
-  PJ_COORD geo_coord, cartesian_coord;
+    terrain.load_data_from_file(filepath);
+    std::cout << "Lecture OK : " << terrain.size() << " points\n";
 
-  // Position géographique en latitude/longitude de l'ENSTA
-  geo_coord.lpzt.lam = -4.4720707; // longitude
-  geo_coord.lpzt.phi = 48.41908; // latitude
-  geo_coord.lpzt.z = 0.; // le z dans le référentiel ellipsoidale n'est pas nécessaire pour la projection
+    Projector projector;
+    TerrainProjected proj(terrain, projector);
 
-  // Projection géographique 
-  cartesian_coord = proj_trans(P, PJ_FWD, geo_coord);
-  cout << "(" << geo_coord.lpzt.lam << "," << geo_coord.lpzt.phi << ")"
-       << " -> " 
-       << "(" << cartesian_coord.xy.x << "," << cartesian_coord.xy.y << ")";
+    std::cout << "Projection OK.\n";
+    std::cout << "Projetion X : [" << proj.min_x() << ", " << proj.max_x() << "]\n";
+    std::cout << "Projection Y : [" << proj.min_y() << ", " << proj.max_y() << "]\n";
 
-  return EXIT_SUCCESS;
+    return 0;
 }
+
