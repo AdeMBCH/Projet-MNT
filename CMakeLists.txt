@@ -9,6 +9,14 @@ add_executable(projet_mnt
     src/terraindata.cpp
     src/projector.cpp
     src/terrainprojected.cpp
+    src/mesh2D.cpp
+    src/grid.cpp
+    src/trianglelocator.cpp
+    src/rasterise.cpp
+    src/ppm.cpp
+    src/ombrage.cpp
+    src/colormap.cpp
+
 )
 
 target_include_directories(projet_mnt PUBLIC
