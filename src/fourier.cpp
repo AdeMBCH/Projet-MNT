@@ -6,20 +6,13 @@
 
 FourierPreprocess::FourierPreprocess(Params p) : m_p(p) {}
 
-std::size_t FourierPreprocess::next_pow2(std::size_t v)
-{
+std::size_t FourierPreprocess::next_pow2(std::size_t v){
     std::size_t p = 1;
     while (p < v) p <<= 1;
     return p;
 }
 
-void FourierPreprocess::compute_grid_dims(std::size_t target_width,
-                                          const BBox2D& bb,
-                                          double grid_scale,
-                                          bool pow2,
-                                          std::size_t& gw,
-                                          std::size_t& gh)
-{
+void FourierPreprocess::compute_grid_dims(std::size_t target_width, const BBox2D& bb, double grid_scale, bool pow2, std::size_t& gw, std::size_t& gh){
     const double bw = bb.maxx - bb.minx;
     const double bh = bb.maxy - bb.miny;
     if (bw <= 0.0 || bh <= 0.0) throw std::runtime_error("FourierPreprocess: bbox invalide.");
@@ -38,8 +31,7 @@ void FourierPreprocess::compute_grid_dims(std::size_t target_width,
     }
 }
 
-static std::vector<double> gaussian_kernel(double sigma)
-{
+static std::vector<double> gaussian_kernel(double sigma){
     const int radius = std::max(1, (int)std::ceil(3.0 * sigma));
     const int size = 2 * radius + 1;
     std::vector<double> k(size);
@@ -55,12 +47,7 @@ static std::vector<double> gaussian_kernel(double sigma)
     return k;
 }
 
-void FourierPreprocess::bin_average(const std::vector<Point3D>& pts,
-                                    const BBox2D& bb,
-                                    std::size_t gw, std::size_t gh,
-                                    std::vector<double>& z,
-                                    std::vector<std::uint8_t>& mask)
-{
+void FourierPreprocess::bin_average(const std::vector<Point3D>& pts, const BBox2D& bb, std::size_t gw, std::size_t gh, std::vector<double>& z, std::vector<std::uint8_t>& mask){
     z.assign(gw * gh, 0.0);
     mask.assign(gw * gh, 0);
 
@@ -91,11 +78,7 @@ void FourierPreprocess::bin_average(const std::vector<Point3D>& pts,
     }
 }
 
-void FourierPreprocess::fill_missing(std::size_t gw, std::size_t gh,
-                                     std::vector<double>& z,
-                                     std::vector<std::uint8_t>& mask,
-                                     int iters)
-{
+void FourierPreprocess::fill_missing(std::size_t gw, std::size_t gh, std::vector<double>& z, std::vector<std::uint8_t>& mask, int iters){
     if (iters <= 0) return;
 
     for (int k = 0; k < iters; ++k) {
@@ -133,10 +116,7 @@ void FourierPreprocess::fill_missing(std::size_t gw, std::size_t gh,
     }
 }
 
-void FourierPreprocess::gaussian_separable(std::size_t gw, std::size_t gh,
-                                          std::vector<double>& z,
-                                          double sigma_px)
-{
+void FourierPreprocess::gaussian_separable(std::size_t gw, std::size_t gh, std::vector<double>& z, double sigma_px){
     if (sigma_px <= 0.0) return;
 
     auto k = gaussian_kernel(sigma_px);
@@ -173,12 +153,7 @@ void FourierPreprocess::gaussian_separable(std::size_t gw, std::size_t gh,
     }
 }
 
-std::vector<Point3D> FourierPreprocess::sample_regular(const BBox2D& bb,
-                                                       std::size_t gw, std::size_t gh,
-                                                       const std::vector<double>& z,
-                                                       const std::vector<std::uint8_t>& mask,
-                                                       std::size_t step)
-{
+std::vector<Point3D> FourierPreprocess::sample_regular(const BBox2D& bb, std::size_t gw, std::size_t gh, const std::vector<double>& z, const std::vector<std::uint8_t>& mask, std::size_t step){
     if (step == 0) step = 1;
 
     const double bw = bb.maxx - bb.minx;
@@ -203,10 +178,7 @@ std::vector<Point3D> FourierPreprocess::sample_regular(const BBox2D& bb,
     return out;
 }
 
-std::vector<Point3D> FourierPreprocess::run(const std::vector<Point3D>& pts,
-                                            const BBox2D& bbox,
-                                            std::size_t target_width_px) const
-{
+std::vector<Point3D> FourierPreprocess::run(const std::vector<Point3D>& pts, const BBox2D& bbox, std::size_t target_width_px) const{
     if (target_width_px == 0) throw std::runtime_error("FourierPreprocess: width == 0");
 
     std::size_t gw = 0, gh = 0;
@@ -223,15 +195,11 @@ std::vector<Point3D> FourierPreprocess::run(const std::vector<Point3D>& pts,
     std::vector<double> z;
     std::vector<std::uint8_t> mask;
 
-    // 1) binning
     bin_average(pts, bbox, gw, gh, z, mask);
 
-    // 2) fill missing (optionnel)
     fill_missing(gw, gh, z, mask, m_p.fill_iters);
 
-    // 3) low-pass (convolution gaussienne) = équivalent à un passe-bas
     gaussian_separable(gw, gh, z, m_p.sigma_px);
 
-    // 4) sample -> points pour Delaunay
     return sample_regular(bbox, gw, gh, z, mask, m_p.sample_step);
 }
