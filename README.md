@@ -1,6 +1,6 @@
 # Projet MNT — Rendu de Modèle Numérique de Terrain en C++
 
-![Rendu MNT de Guerlédan](docs/guerledan.png)
+![Rendu MNT de Guerlédan](docs/guerledan.ppm)
 
 Ce projet C++ transforme un fichier de points MNT (latitude, longitude, altitude) en une image rasterisée au format **PPM**. Il suit la méthodologie décrite dans le sujet `cpp_06_projet_carte.pdf` (cf. le document du cours : https://www.simon-rohou.fr/cours/c++/doc/06/cpp_06_projet_carte.pdf).
 
