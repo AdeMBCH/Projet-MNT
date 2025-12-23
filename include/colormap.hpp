@@ -1,33 +1,27 @@
-#ifndef COLORMAP_HPP
-#define COLORMAP_HPP
-
+#pragma once
+#include <array>
 #include <cstdint>
+#include <string>
 #include <vector>
 
-struct RGB {
-    std::uint8_t r, g, b;
-};
+struct RGB { std::uint8_t r, g, b; };
 
-class ColorMapHaxby {
+class HaxbyColorMap {
 public:
-    ColorMapHaxby(double zmin, double zmax);
-    RGB operator()(double z) const;
+    void load_cpt(const std::string& filepath);   // resources/haxby.cpt
+    RGB color(double z, double zmin, double zmax) const;
 
-    // Modulation hillshade [0..1]
     static RGB shade(RGB c, double s);
 
 private:
-    struct Stop {
-        double t;
-        std::uint8_t r, g, b;
+    struct Segment {
+        double t0, t1;   // dans [0,1] (comme ton fichier)
+        RGB c0, c1;
     };
 
-    double normalize(double z) const;
-    static RGB lerp(const Stop& a, const Stop& b, double t);
-    RGB sample(double t) const;
+    std::vector<Segment> m_segments;
+    std::array<RGB,256> m_lut{};
+    bool m_ready = false;
 
-    double m_zmin;
-    double m_zmax;
+    void build_lut_256();
 };
-
-#endif

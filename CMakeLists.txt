@@ -4,7 +4,7 @@ project(projet_mnt)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(PROJ REQUIRED proj)
 
-add_executable(projet_mnt
+add_executable(create_raster
     src/main.cpp
     src/terraindata.cpp
     src/projector.cpp
@@ -16,14 +16,16 @@ add_executable(projet_mnt
     src/ppm.cpp
     src/ombrage.cpp
     src/colormap.cpp
+    src/fourier.cpp
 
 )
 
-target_include_directories(projet_mnt PUBLIC
+target_include_directories(create_raster PUBLIC
     ${PROJ_INCLUDE_DIRS}
     ${CMAKE_SOURCE_DIR}/include
 )
 
-target_link_libraries(projet_mnt PUBLIC
+target_link_libraries(create_raster PUBLIC
     ${PROJ_LIBRARIES}
 )
+

@@ -3,13 +3,19 @@
 #include <stdexcept>
 #include "ombrage.hpp"
 
-Rasterizer::Rasterizer(const TriangleLocator& locator, BBox2D bbox, double zmin, double zmax): m_locator(locator), m_bbox(bbox), m_cmap(zmin, zmax){}
+Rasterizer::Rasterizer(const TriangleLocator& locator,
+                       BBox2D bbox,
+                       double zmin,
+                       double zmax)
+    : m_locator(locator),
+      m_bbox(bbox)
+{
+    m_cmap.load_cpt("../resources/haxby.cpt");
+    m_zmin = zmin;
+    m_zmax = zmax;
+}
 
-std::vector<std::uint8_t> Rasterizer::render_p6_color(std::size_t width,
-                                                      std::size_t& out_height,
-                                                      bool ombrage_enabled,
-                                                      double azimuth_deg,
-                                                      double altitude_deg) const
+std::vector<std::uint8_t> Rasterizer::render_p6_color(std::size_t width,std::size_t& out_height,bool ombrage_enabled,double azimuth_deg,double altitude_deg) const
 {
     if (width == 0) throw std::runtime_error("Rasterizer: width == 0.");
 
@@ -61,9 +67,11 @@ std::vector<std::uint8_t> Rasterizer::render_p6_color(std::size_t width,
             if (!mask[id]) {
                 col = {0, 0, 0}; // hors hull -> noir
             } else {
-                RGB col = m_cmap(zgrid[id]);
+
+                
+                RGB col = m_cmap.color(zgrid[id], m_zmin, m_zmax);
                 double s = 0.35 + 0.65 * shade[id];   // si hillshade activé
-                col = ColorMapHaxby::shade(col, s);
+                col = HaxbyColorMap::shade(col, s);
             }
 
             const std::size_t idx = 3 * id;

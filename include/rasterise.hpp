@@ -20,7 +20,9 @@ public:
 private:
     const TriangleLocator& m_locator;
     BBox2D m_bbox;
-    ColorMapHaxby m_cmap;
+    HaxbyColorMap m_cmap;
+    double m_zmin;
+    double m_zmax;
 };
 
 #endif
