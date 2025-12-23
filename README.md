@@ -1,6 +1,6 @@
 # Projet MNT — Rendu de Modèle Numérique de Terrain en C++
 
-![Rendu MNT de Guerlédan](docs/guerledan.ppm)
+![Rendu MNT de Guerlédan](docs/guerledan.png)
 
 Ce projet C++ transforme un fichier de points MNT (latitude, longitude, altitude) en une image rasterisée au format **PPM**. Il suit la méthodologie décrite dans le sujet `cpp_06_projet_carte.pdf` (cf. le document du cours : https://www.simon-rohou.fr/cours/c++/doc/06/cpp_06_projet_carte.pdf).
 
@@ -180,10 +180,10 @@ Les performances dépendent du nombre de points et de la largeur demandée. En c
 ## Rendus
 
 ### Sans prétraitement Fourier
-![Rendu MNT sans Fourier de la rade de Brest](docs/mnt_no_fourier.ppm)
+![Rendu MNT sans Fourier de la rade de Brest](docs/mnt_no_fourier.png)
 
 ### Avec le prétraitement Fourier
-![Rendu MNT avec Fourier de la rade de Brest](docs/mnt_avec_fourier.ppm)
+![Rendu MNT avec Fourier de la rade de Brest](docs/mnt_avec_fourier.png)
 
 Une différence de 35% de vitesse gagnée est environ estimée.
 
