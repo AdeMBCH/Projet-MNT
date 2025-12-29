@@ -21,6 +21,7 @@ std::vector<std::uint8_t> Rasterizer::render_p6_color(std::size_t width,std::siz
 
     const double bbox_w = m_bbox.maxx - m_bbox.minx;
     const double bbox_h = m_bbox.maxy - m_bbox.miny;
+    
     if (bbox_w <= 0 || bbox_h <= 0) throw std::runtime_error("Rasterizer: bbox invalide.");
 
     out_height = static_cast<std::size_t>(std::llround((bbox_h / bbox_w) * static_cast<double>(width)));

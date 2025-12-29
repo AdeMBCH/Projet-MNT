@@ -28,8 +28,23 @@ struct Timer {
     }
 };
 
+bool parse(int argc, char** argv, int idx, bool defval=false) {
+    if (idx >= argc) return defval;
+    std::string s = argv[idx];
+    if (s.empty()) return defval;
+
+    // lowercase
+    std::transform(s.begin(), s.end(), s.begin(),
+                   [](unsigned char c){ return (char)std::tolower(c); });
+
+    if (s == "true")  return true;
+    if (s == "false") return false;
+
+    return defval;
+}
+
 // Pipeline : points -> delaunay -> mesh -> grid -> raster -> ppm
-static void run_pipeline(const std::string& out_ppm, const std::vector<Point3D>& pts, const BBox2D& bbox, double zmin, double zmax, std::size_t width){
+static void run_pipeline(const std::string& out_ppm, const std::vector<Point3D>& pts, const BBox2D& bbox, double zmin, double zmax, std::size_t width, bool ombrage){
     std::vector<double> coords;
     std::vector<double> alts;
     coords.reserve(pts.size() * 2);
@@ -55,7 +70,7 @@ static void run_pipeline(const std::string& out_ppm, const std::vector<Point3D>&
 
     Rasterizer rast(locator, bbox, zmin, zmax);
     std::size_t height = 0;
-    auto img = rast.render_p6_color(width, height, true, -12.0, 45.0);
+    auto img = rast.render_p6_color(width, height, ombrage, -12.0, 45.0);
 
     PPM::write_p6(out_ppm, width, height, img);
     std::cout << "Enregistré sous : " << out_ppm << " (" << width << "x" << height << ")\n";
@@ -63,17 +78,25 @@ static void run_pipeline(const std::string& out_ppm, const std::vector<Point3D>&
 
 int main(int argc, char** argv)
 {
-    if (argc != 3) {
-        std::cerr << "Utilisation : " << argv[0] << " <fichier_mnt> <largeur_pixels>\n";
-        std::cerr << "Exemple: " << argv[0] << " Guerledan.txt 800\n";
+    if (argc < 3) {
+        std::cerr << "Utilisation : " << argv[0]
+                  << " <fichier_mnt> <largeur_pixels> [use_fourier] [use_ombrage]\n"
+                  << "Exemples:\n"
+                  << "  " << argv[0] << " Guerledan.txt 800\n"
+                  << "  " << argv[0] << " Guerledan.txt 800 true\n"
+                  << "  " << argv[0] << " Guerledan.txt 800 true false\n";
         return EXIT_FAILURE;
     }
 
     const std::string filepath = argv[1];
     const std::size_t width = static_cast<std::size_t>(std::atoi(argv[2]));
 
-    // Switch FOURIER
-    const bool USE_FOURIER = false; // true => active, false => désactive
+
+    const bool USE_FOURIER  = parse(argc, argv, 3, false);
+    const bool USE_OMBRAGE  = parse(argc, argv, 4, false);
+
+    std::cout << "fourier=" << (USE_FOURIER ? "true" : "false")
+              << " ombrage=" << (USE_OMBRAGE ? "true" : "false") << "\n";
 
     // 1) Lecture
     TerrainData terrain;
@@ -125,9 +148,10 @@ int main(int argc, char** argv)
     }
 
     // 5) Raster
-    const std::string out = USE_FOURIER ? "mnt_avec_fourier.ppm" : "mnt_sans_fourier.ppm";
+    const std::string out = USE_FOURIER? (USE_OMBRAGE ? "mnt_avec_fourier_avec_ombrage.ppm" : "mnt_avec_fourier_sans_ombrage.ppm")
+    : (USE_OMBRAGE ? "mnt_sans_fourier_avec_ombrage.ppm" : "mnt_sans_fourier_sans_ombrage.ppm");
 
-    run_pipeline(out, pts_for_delaunay, bbox, terrain.min_alt(), terrain.max_alt(), width);
+    run_pipeline(out, pts_for_delaunay, bbox, terrain.min_alt(), terrain.max_alt(), width, USE_OMBRAGE);
 
     return 0;
 }
