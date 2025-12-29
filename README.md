@@ -2,7 +2,33 @@
 
 ![Rendu MNT de Guerlédan](docs/guerledan.png)
 
-Ce projet C++ transforme un fichier de points MNT (latitude, longitude, altitude) en une image rasterisée au format **PPM**. Il suit la méthodologie décrite dans le sujet `cpp_06_projet_carte.pdf` (cf. le document du cours : https://www.simon-rohou.fr/cours/c++/doc/06/cpp_06_projet_carte.pdf).
+Ce projet C++ transforme un fichier de points MNT (latitude, longitude, altitude) en une image au format **PPM**. Il suit la méthodologie décrite dans le sujet du cours de C++ de l'ENSTA Bretagne de seconde année en robotique autonome. (cf. le document du cours : https://www.simon-rohou.fr/cours/c++/doc/06/cpp_06_projet_carte.pdf).
+
+## Résultats attendus
+
+À partir d’un fichier `lat lon alt`, le programme produit :
+
+- un **fichier PPM** prêt à être visualisé ;
+- une **palette de couleurs** (Haxby) pour donner du relief ;
+- un **ombrage Lambertien** pour accentuer les structures terrain.
+
+Quelques exemples sont fournis dans `docs/`.
+
+## Table des matières
+
+- [Objectif et principe général](#objectif-et-principe-général)
+- [Fonctionnalités](#fonctionnalités)
+- [Prérequis](#prérequis)
+- [Compilation](#compilation)
+- [Utilisation](#utilisation)
+- [Format du fichier MNT](#format-du-fichier-mnt)
+- [Pipeline détaillé (fonctions et classes)](#pipeline-détaillé-fonctions-et-classes)
+- [Option de prétraitement Fourier](#option-de-prétraitement-fourier)
+- [Sorties et performances](#sorties-et-performances)
+- [Rendus](#rendus)
+- [Structure du projet](#structure-du-projet)
+- [Dépannage (FAQ)](#dépannage-faq)
+- [Licence](#licence)
 
 ## Objectif et principe général
 
@@ -25,7 +51,7 @@ Le binaire principal s’appelle `create_raster`.
 - Triangulation de Delaunay des points projetés.
 - Rasterisation sur grille et génération d’une image PPM (format P6).
 - Palette de couleurs (`resources/haxby.cpt`).
-- Ombrage de type Lambert pour améliorer le relief.
+- Ombrage de type Lambert pour améliorer le relief. (désactivée par défaut)
 - Option de prétraitement Fourier (désactivée par défaut).
 - Mesure de temps par étapes (sorties console).
 
@@ -54,24 +80,38 @@ L’exécutable généré s’appelle `create_raster`.
 ## Utilisation
 
 ```bash
-./build/create_raster <fichier_mnt> <largeur_pixels>
+./build/create_raster <fichier_mnt> <largeur_pixels> [use_fourier] [use_ombrage]
 ```
 
-Exemple :
+Exemples :
 
 ```bash
 ./build/create_raster Guerledan.txt 800
 ```
 
+```bash
+./build/create_raster Guerledan.txt 800 true\n"
+```
+
+```bash
+./build/create_raster Guerledan.txt 800 true false\n";
+```
+
 Le programme génère un fichier PPM dans le répertoire courant :
 
-- `mnt_sans_fourier.ppm` (par défaut)
-- `mnt_avec_fourier.ppm` (si l’option Fourier est activée)
+- `mnt_sans_fourier_sans_ombrage.ppm` (par défaut)
+- `mnt_sans_fourier_avec_ombrage.ppm` (si l’ombrage est activé et pas Fourier)
+- `mnt_avec_fourier_sans_ombrage.ppm` (si l’option Fourier est activée et pas l'ombrage)
+- `mnt_avec_fourier_avec_ombrage.ppm` (si l'option Fourier et l'ombrage sont activés)
+
 
 ### Paramètres
 
 - **`<fichier_mnt>`** : chemin vers un fichier texte contenant une liste de points.
 - **`<largeur_pixels>`** : largeur de l’image en pixels. La hauteur est calculée automatiquement en conservant le ratio de l’emprise projetée.
+- (facultatif) **`[use_fourier]`** : (true ou false) Spécifie l'utilisation d'une compression par Fourier.
+- (facultatif) **`[use_ombrage]`** : (true ou false) Spécifie la présence ou non d'ombrage.
+
 
 ## Format du fichier MNT
 
@@ -143,13 +183,7 @@ Cette section détaille l’enchaînement exact des modules du code source.
 
 ## Option de prétraitement Fourier
 
-Le prétraitement Fourier est désactivé par défaut. Il permet de lisser et de sous-échantillonner les points avant la triangulation, ce qui peut accélérer la Delaunay.
-
-Pour l’activer, modifiez la variable suivante dans `src/main.cpp` :
-
-```cpp
-const bool USE_FOURIER = true;
-```
+Le prétraitement Fourier est désactivé par défaut. Il permet de lisser et de sous-échantillonner les points avant la triangulation, ce qui peut accélérer la Delaunay. Il s'active ou se désactive à l'exécution du programme.
 
 Le module **`FourierPreprocess`** (`src/fourier.cpp`) suit ces étapes :
 
@@ -168,7 +202,7 @@ Paramètres internes disponibles dans `src/main.cpp` :
 Le programme affiche des temps indicatifs (lecture, Delaunay, etc.) et confirme le fichier généré :
 
 ```
-Enregistré sous : mnt_sans_fourier.ppm (800xXXX)
+Enregistré sous : mnt_sans_fourier_sans_ombrage.ppm (800xXXX)
 ```
 
 Les performances dépendent du nombre de points et de la largeur demandée. En cas de temps de calcul élevés :
@@ -176,6 +210,13 @@ Les performances dépendent du nombre de points et de la largeur demandée. En c
 - réduire la largeur demandée,
 - activer le prétraitement Fourier,
 - vérifier que le fichier MNT n’est pas excessivement dense.
+
+## Choix techniques (pour aller plus loin)
+
+- **PROJ** assure la conversion entre coordonnées géographiques (lat/lon) et projetées (mètres).
+- La **triangulation de Delaunay** garantit des triangles bien formés pour l’interpolation.
+- L’**ombrage Lambertien** exploite un gradient local pour simuler une source lumineuse.
+- La **palette Haxby** offre un rendu classique pour les MNT et bathymétries.
 
 ## Rendus
 
@@ -195,7 +236,7 @@ Une différence de 35% de vitesse gagnée est environ estimée.
 - `src/` : implémentation du pipeline (projection, triangulation, rasterisation, etc.).
 - `include/` : en-têtes C++.
 - `resources/` : palette de couleurs (ex. `haxby.cpt`).
-- `tests/` : réservé aux tests (vide pour l’instant).
+- `tests/` : réservé aux tests (vide).
 - `cpp_06_projet_carte.pdf` : sujet/projet (documentation de contexte).
 
 ## Dépannage (FAQ)
@@ -204,6 +245,7 @@ Une différence de 35% de vitesse gagnée est environ estimée.
 - **Ligne mal formée** : s’assurer que chaque ligne contient bien `lat lon alt`.
 - **PROJ introuvable** : installer `libproj-dev` et relancer CMake.
 - **Image noire** : points hors de l’emprise ou coordonnées mal projetées (vérifier les données).
+- **Image déformée** : vérifier l’ordre `lat lon alt` et la projection utilisée dans `projector.hpp`.
 
 ## Licence
 
