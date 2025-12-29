@@ -187,6 +187,9 @@ Les performances dépendent du nombre de points et de la largeur demandée. En c
 
 Une différence de 35% de vitesse gagnée est environ estimée.
 
+### Avec ombrage
+![Rendu MNT du lac de Guerlédan avec ombrage](docs/guerledan_ombrage.png)
+
 ## Structure du projet
 
 - `src/` : implémentation du pipeline (projection, triangulation, rasterisation, etc.).

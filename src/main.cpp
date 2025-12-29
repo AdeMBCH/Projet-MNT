@@ -55,7 +55,7 @@ static void run_pipeline(const std::string& out_ppm, const std::vector<Point3D>&
 
     Rasterizer rast(locator, bbox, zmin, zmax);
     std::size_t height = 0;
-    auto img = rast.render_p6_color(width, height, false, 315.0, 45.0);
+    auto img = rast.render_p6_color(width, height, true, -12.0, 45.0);
 
     PPM::write_p6(out_ppm, width, height, img);
     std::cout << "Enregistré sous : " << out_ppm << " (" << width << "x" << height << ")\n";
