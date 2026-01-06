@@ -67,7 +67,22 @@ Sur Debian/Ubuntu (exemple) :
 sudo apt-get install cmake g++ libproj-dev
 ```
 
-## Compilation
+## Compilation V4 (new version)
+
+L'ajout de l'exécutable `build.sh` permet dans cette version une compilation et une utilisation simplifiée depuis la racine du projet:
+
+- Rendre exécutable :
+```bash
+chmod +x build.sh
+```
+
+- Compilation V4
+```
+./build.sh
+```
+
+
+## Compilation V3
 
 ```bash
 mkdir -p build
@@ -90,11 +105,11 @@ Exemples :
 ```
 
 ```bash
-./build/create_raster Guerledan.txt 800 true\n"
+./build/create_raster Guerledan.txt 800 true"
 ```
 
 ```bash
-./build/create_raster Guerledan.txt 800 true false\n";
+./build/create_raster Guerledan.txt 800 true false";
 ```
 
 Le programme génère un fichier PPM dans le répertoire courant :
