@@ -29,3 +29,6 @@ target_link_libraries(create_raster PUBLIC
     ${PROJ_LIBRARIES}
 )
 
+target_compile_definitions(create_raster PRIVATE
+    RESOURCES_DIR="${CMAKE_SOURCE_DIR}/resources"
+)

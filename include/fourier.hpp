@@ -1,5 +1,6 @@
 #ifndef FOURIER_HPP
 #define FOURIER_HPP
+
 #include <vector>
 #include <cstddef>
 #include <cstdint>
@@ -20,7 +21,7 @@ class FourierPreprocess {
 
             Params(): grid_scale(1.0), fill_iters(4), sigma_px(2.0), sample_step(2), pow2_grid(true){}
         };
-        
+
         explicit FourierPreprocess(Params p = Params());
 
         // Entrée: points projetés (x,y,z) + bbox projetée + largeur demandée par l'utilisateur

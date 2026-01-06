@@ -7,11 +7,11 @@
 #include <vector>
 
 struct RGB { 
-    std::uint8_t r, g, b; 
+    std::uint8_t r, g, b;
 };
-
-class HaxbyColorMap {
-
+    
+    class HaxbyColorMap {
+        
     public:
 
         void load_cpt(const std::string& filepath);   // resources/haxby.cpt

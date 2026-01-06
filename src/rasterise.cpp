@@ -10,7 +10,7 @@ Rasterizer::Rasterizer(const TriangleLocator& locator,
     : m_locator(locator),
       m_bbox(bbox)
 {
-    m_cmap.load_cpt("../resources/haxby.cpt");
+    m_cmap.load_cpt(std::string(RESOURCES_DIR) + "/haxby.cpt");//m_cmap.load_cpt("../resources/haxby.cpt");
     m_zmin = zmin;
     m_zmax = zmax;
 }

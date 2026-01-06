@@ -32,11 +32,6 @@ bool parse(int argc, char** argv, int idx, bool defval=false) {
     if (idx >= argc) return defval;
     std::string s = argv[idx];
     if (s.empty()) return defval;
-
-    // lowercase
-    std::transform(s.begin(), s.end(), s.begin(),
-                   [](unsigned char c){ return (char)std::tolower(c); });
-
     if (s == "true")  return true;
     if (s == "false") return false;
 
@@ -88,7 +83,7 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    const std::string filepath = argv[1];
+    const std::string filepath = std::string(RESOURCES_DIR) + "/" + argv[1];
     const std::size_t width = static_cast<std::size_t>(std::atoi(argv[2]));
 
 
