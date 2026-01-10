@@ -1,5 +1,5 @@
-#ifndef TERRAINPROJECTOR_H
-#define TERRAINPROJECTOR_H
+#ifndef TERRAINPROJECTED_H
+#define TERRAINPROJECTED_H
 
 #include <vector>
 #include "terraindata.hpp"
